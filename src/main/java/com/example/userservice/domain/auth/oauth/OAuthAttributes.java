@@ -6,6 +6,7 @@ import com.example.userservice.domain.member.entity.Member;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Map;
 import java.util.UUID;
@@ -65,7 +66,7 @@ public class OAuthAttributes {
                 .userId(oauth2MemberInfo.getEmail()) //
                 .name(oauth2MemberInfo.getNickname())
                 .state(true)
-                .password("" + UUID.randomUUID())
+                .password(new BCryptPasswordEncoder().encode(providerType.name() + "-" + UUID.randomUUID()))ss
                 .profile(oauth2MemberInfo.getImageUrl())
                 .nickname(oauth2MemberInfo.getNickname())
                 .build();
