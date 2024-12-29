@@ -21,7 +21,7 @@ public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     public void setRefreshToken(String username, String refreshToken) {
-        Member member = memberRepository.findMemberByUserId(username).orElseThrow(() -> new RuntimeException("no member by username"));
-        refreshTokenRepository.save(RefreshToken.builder().token(refreshToken).id(member.getUserId()).build());
+//        Member member = memberRepository.findMemberByUserId(username).orElseThrow(() -> new RuntimeException("no member by username"));
+        refreshTokenRepository.save(RefreshToken.builder().token(refreshToken).id(username).build());
     }
 }
