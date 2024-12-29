@@ -11,6 +11,8 @@ import com.example.userservice.domain.auth.service.RefreshTokenService;
 import com.example.userservice.domain.member.service.MemberService;
 import com.example.userservice.global.exception.GlobalExceptionHandlerFilter;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
@@ -25,8 +27,10 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
+import java.util.List;
 
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -46,41 +50,49 @@ public class SecurityConfigTest {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
+                .cors().configurationSource(corsConfigurationSource()) // CORS 필터 우선
+                .and()
+                .csrf().disable() // CSRF 비활성화
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .formLogin().disable()
                 .exceptionHandling()
                 .and()
-                .formLogin().disable() // 초기 로그인화면 자동생성 안함
-                .csrf().disable() // rest api 에서 csrf 방어 필요 없음
-                .cors().configurationSource(corsConfigurationSource()).and() // cors
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()// 세션 생성 안함 , response 에 setcookie jsessionId= ... 안함
+                .addFilterBefore(new CorsFilter(corsConfigurationSource()), JwtAuthenticationFilter.class)
                 .addFilter(new JwtAuthenticationFilter(authenticationManager(), refreshTokenService, jwtProvider))
                 .addFilterBefore(new JwtAuthorizationFilter(authenticationManager(), memberService, jwtProvider), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
-                .antMatchers(HttpMethod.OPTIONS,"/**").permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll() // OPTIONS 요청 허용
                 .antMatchers(HttpMethod.POST, "/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/**").permitAll()
                 .antMatchers(HttpMethod.PUT, "/**").permitAll()
                 .antMatchers(HttpMethod.DELETE, "/**").permitAll()
-                .antMatchers("/static/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/v1/member/renew-access-token").permitAll()
                 .anyRequest().authenticated();
-        httpSecurity.addFilterAfter(globalExceptionHandlerFilter,LogoutFilter.class);
+
+        httpSecurity.addFilterAfter(globalExceptionHandlerFilter, LogoutFilter.class);
         return httpSecurity.build();
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfigurationSource corsConfigurationSource() {
+        Logger logger = LoggerFactory.getLogger(SecurityConfigTest.class);
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("https://flowbit.co.kr");
-        configuration.addAllowedOriginPattern("*localhost*"); // A list of origins for which cross-origin requests are allowed. ex) http://localhost:8080
-        configuration.addAllowedHeader("*"); // Set the HTTP methods to allow ,ex) "GET", "POST", "PUT";
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        // 모든 도메인을 허용
+        configuration.setAllowedOriginPatterns(List.of("*")); // 또는 setAllowedOrigins(List.of("*"))
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
+
+        logger.info("CORS configuration initialized:");
+        logger.info("Allowed Origins: {}", configuration.getAllowedOriginPatterns());
+        logger.info("Allowed Methods: {}", configuration.getAllowedMethods());
+        logger.info("Allowed Headers: {}", configuration.getAllowedHeaders());
+        logger.info("Allow Credentials: {}", configuration.getAllowCredentials());
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
-
-//
 
 }

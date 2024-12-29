@@ -11,6 +11,8 @@ import com.example.userservice.domain.auth.service.RefreshTokenService;
 import com.example.userservice.domain.member.service.MemberService;
 import com.example.userservice.global.exception.GlobalExceptionHandlerFilter;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
@@ -32,6 +34,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import java.util.Arrays;
+import java.util.List;
 
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -82,20 +85,48 @@ public class SecurityConfig{
         return httpSecurity.build();
     }
 
+
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfigurationSource corsConfigurationSource() {
+        Logger logger = LoggerFactory.getLogger(SecurityConfigTest.class);
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("https://flowbit.co.kr");
+
+        // 모든 도메인을 허용
+//        configuration.setAllowedOriginPatterns(List.of("https://www.flowbit.co.kr","https://new-flowbit-client.vercel.app"));
+        configuration.addAllowedOrigin("https://www.flowbit.co.kr");
         configuration.addAllowedOrigin("https://new-flowbit-client.vercel.app");
         configuration.addAllowedOriginPattern("*localhost*"); // A list of origins for which cross-origin requests are allowed. ex) http://localhost:8080
-        configuration.addAllowedHeader("*"); // Set the HTTP methods to allow ,ex) "GET", "POST", "PUT";
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
-        configuration.addExposedHeader("*"); // 모든걸 허용함
+
+
+        logger.info("CORS configuration initialized:");
+        logger.info("Allowed Origins: {}", configuration.getAllowedOrigins());
+        logger.info("Allowed Origins: {}", configuration.getAllowedOriginPatterns());
+        logger.info("Allowed Methods: {}", configuration.getAllowedMethods());
+        logger.info("Allowed Headers: {}", configuration.getAllowedHeaders());
+        logger.info("Allow Credentials: {}", configuration.getAllowCredentials());
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.addAllowedOrigin("https://flowbit.co.kr");
+//        configuration.addAllowedOrigin("https://new-flowbit-client.vercel.app");
+//        configuration.addAllowedOriginPattern("*localhost*"); // A list of origins for which cross-origin requests are allowed. ex) http://localhost:8080
+//        configuration.addAllowedHeader("*"); // Set the HTTP methods to allow ,ex) "GET", "POST", "PUT";
+//        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+//        configuration.setAllowCredentials(true);
+//        configuration.addExposedHeader("*"); // 모든걸 허용함
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
+//    }
 
 
 //
