@@ -66,7 +66,7 @@ public class OAuthAttributes {
                 .userId(oauth2MemberInfo.getEmail()) //
                 .name(oauth2MemberInfo.getNickname())
                 .state(true)
-                .password(new BCryptPasswordEncoder().encode(providerType.name() + "-" + UUID.randomUUID()))ss
+                .password(new BCryptPasswordEncoder().encode(providerType.name() + "-" + UUID.randomUUID()))
                 .profile(oauth2MemberInfo.getImageUrl())
                 .nickname(oauth2MemberInfo.getNickname())
                 .build();
