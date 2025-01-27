@@ -153,7 +153,7 @@ public class MemberServiceImpl implements MemberService {
 
     private String deleteOriginFileThenNewFileUpload(String memberId, UpdateMemberRequestDto updateMemberRequestDto, Member member, String filename,MultipartFile multipartFile) throws FileUploadException {
         if(updateMemberRequestDto.getProfileFile()!=null){
-            if(!filename.equals("리flowbit-default-profile.png")){
+            if(!filename.equals("flowbit-default-profile.png")){
                 awsS3Service.deleteFile(member.getProfile());
             }
             // aws 새롭게 업로드

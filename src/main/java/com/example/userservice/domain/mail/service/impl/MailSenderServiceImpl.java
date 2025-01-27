@@ -6,6 +6,8 @@ import com.example.userservice.domain.mail.dto.request.VerificationMailDto;
 import com.example.userservice.domain.mail.service.MailSenderService;
 import com.example.userservice.domain.member.entity.Member;
 import com.example.userservice.domain.member.repository.MemberRepository;
+import com.example.userservice.domain.subscriber.entity.Subscriber;
+import com.example.userservice.domain.subscriber.repository.SubscriberRepository;
 import com.example.userservice.global.config.redis.util.EmailRedisUtil;
 import com.example.userservice.global.exception.error.DuplicateAccountException;
 import com.example.userservice.global.exception.error.EmailNotValidException;
@@ -37,7 +39,7 @@ public class MailSenderServiceImpl implements MailSenderService {
     private final SpringTemplateEngine templateEngine;
     private final EmailRedisUtil emailRedisUtil;
     private final MemberRepository memberRepository;
-
+    private final SubscriberRepository subscriberRepository;
 
 
 
@@ -100,6 +102,8 @@ public class MailSenderServiceImpl implements MailSenderService {
 
         if(Objects.equals(verifyPurpose, MailPurpose.SIGNUP.toString()) && userInputCode.equals(verificationCode)){
             emailRedisUtil.setListData(email,0,"signupVerifySuccess",60*20L);
+        }else if(Objects.equals(verifyPurpose, MailPurpose.SUBSCRIBE.toString()) && userInputCode.equals(verificationCode)){
+            emailRedisUtil.setListData(email,0,"subscriberVerifySuccess",60*20L);
         }
     }
 
@@ -111,6 +115,14 @@ public class MailSenderServiceImpl implements MailSenderService {
             Optional<Member> member = memberRepository.findByUserId(email);
             if(member.isPresent()){
                 throw new DuplicateAccountException("중복된 회원입니다");
+            }
+
+        }
+
+        if(verifyPurpose.equals("SUBSCRIBE")){
+            Optional<Subscriber> subscriber = subscriberRepository.findByEmail(email);
+            if(subscriber.isPresent()){
+                throw new IllegalArgumentException("중복된 구독자입니다.");
             }
 
         }
