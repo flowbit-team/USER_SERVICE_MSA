@@ -38,7 +38,6 @@ public class Subscriber extends BaseTimeEntity {
         this.email = email;
 
         keywords.stream()
-                .distinct()
                 .map(Interest::new)
                 .forEach(this::add);
     }

@@ -1,20 +1,29 @@
 package com.example.userservice.domain.subscriber.dto.request;
 
+import com.example.userservice.domain.subscriber.dto.validator.ValidKeywords;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang.StringUtils;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor
-@Getter
 public class SubscribeRequestDto {
+    @Getter
     private String email;
 
-    @Size(min=1, max = 3, message = "You must provide 1 to 3 keywords.")
-    private List<
-            @NotBlank(message = "Each keyword must not be blank.")
-            @Size(min = 2, max = 20, message = "Keyword must be between 2 and 20 characters.")
-                    String> keywords;
+    @ValidKeywords(minSize = 1, maxSize = 3, keywordMinLength = 2, keywordMaxLength = 20,
+            message = "Keywords must be 1~3, each 2~20 characters and unique.")
+    private List<String> keywords;
+
+    // 중복 제거
+    public List<String> getKeywords() {
+        return keywords.stream()
+                .map(String::trim)
+                .filter(StringUtils::isNotBlank)
+                .distinct()
+                .collect(Collectors.toList());
+    }
 }
