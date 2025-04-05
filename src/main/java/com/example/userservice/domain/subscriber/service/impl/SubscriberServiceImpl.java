@@ -1,6 +1,5 @@
 package com.example.userservice.domain.subscriber.service.impl;
 
-import com.example.userservice.domain.member.dto.request.SignUpRequestDto;
 import com.example.userservice.domain.subscriber.entity.Subscriber;
 import com.example.userservice.domain.subscriber.repository.SubscriberRepository;
 import com.example.userservice.domain.subscriber.service.SubscriberService;
@@ -25,15 +24,15 @@ public class SubscriberServiceImpl implements SubscriberService {
 
     @Override
     @Transactional
-    public void subscribe(String email) {
+    public void subscribe(String email, List<String> keywords) {
         // 이메일 중복 체크
         subscriberRepository.findByEmail(email).ifPresent(subscriber -> {
             throw new IllegalArgumentException("이미 구독된 이메일입니다.");
         });
         emailVerifyCheck(email);
 
-        // 새 구독자 저장
-        Subscriber subscriber = new Subscriber(email);
+        // 관심 키워드와 함께 새 구독자 저장
+        Subscriber subscriber = new Subscriber(email, keywords);
         subscriberRepository.save(subscriber);
     }
 
