@@ -1,15 +1,15 @@
 package com.example.userservice.domain.subscriber.controller;
 
 
-import com.example.userservice.domain.member.dto.response.CreateMemberResponseDto;
 import com.example.userservice.domain.subscriber.dto.request.SubscribeRequestDto;
 import com.example.userservice.domain.subscriber.service.SubscriberService;
-import com.example.userservice.global.common.CommonResDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,8 +20,8 @@ public class SubscriberController {
     private final SubscriberService subscriberService;
 
     @PostMapping("/subscribe")
-    public ResponseEntity<?> subscribe(@RequestBody SubscribeRequestDto subscribeRequestDto) {
-        subscriberService.subscribe(subscribeRequestDto.getEmail());
+    public ResponseEntity<?> subscribe(@Valid @RequestBody SubscribeRequestDto subscribeRequestDto) {
+        subscriberService.subscribe(subscribeRequestDto.getEmail(), subscribeRequestDto.getKeywords());
         return ResponseEntity.status(HttpStatus.CREATED).body("구독 완료: " + subscribeRequestDto.getEmail());
     }
 
