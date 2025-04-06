@@ -5,9 +5,12 @@ import org.apache.commons.lang.StringUtils;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class KeywordsValidator implements ConstraintValidator<ValidKeywords, List<String>> {
+
+    private static final Pattern VALID_KEYWORD_PATTERN = Pattern.compile("^[a-zA-Z0-9가-힣 ]+$");
 
     private int minSize;
     private int maxSize;
@@ -26,7 +29,7 @@ public class KeywordsValidator implements ConstraintValidator<ValidKeywords, Lis
     public boolean isValid(List<String> value, ConstraintValidatorContext constraintValidatorContext) {
         if (value == null) return false;
 
-        List<String > processed = value.stream()
+        List<String> processed = value.stream()
                 .map(String::trim)
                 .filter(StringUtils::isNotBlank)
                 .distinct()
@@ -37,6 +40,8 @@ public class KeywordsValidator implements ConstraintValidator<ValidKeywords, Lis
         }
 
         return processed.stream()
-                .allMatch(s -> s.length() >= keywordMinLength && s.length() <= keywordMaxLength);
+                .allMatch(s -> s.length() >= keywordMinLength
+                        && s.length() <= keywordMaxLength
+                        && VALID_KEYWORD_PATTERN.matcher(s).matches());
     }
 }
