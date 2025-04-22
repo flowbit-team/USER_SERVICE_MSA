@@ -30,6 +30,15 @@ public class Subscriber extends BaseTimeEntity {
     @OneToMany(mappedBy = "subscriber", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Interest> interests = new ArrayList<>();
 
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean sent; // 이메일 발송 여부 (true: 발송 완료, false: 미발송)
+
+
+    @PrePersist
+    public void prePersist() {
+        this.sent = false;
+    }
+
     public Subscriber(String email) {
         this.email = email;
     }

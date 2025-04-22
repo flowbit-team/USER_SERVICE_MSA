@@ -24,6 +24,27 @@ import java.util.stream.Collectors;
 @Slf4j
 public class GlobalExceptionHandler {
 
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    protected ResponseEntity<?> illegalArgumentException(IllegalArgumentException ex) {
+        log.error("handleDuplicateAccountException :: ");
+
+        ErrorCode errorCode = ErrorCode.UnAuthorizedException;
+
+        ErrorResponse error = ErrorResponse.builder()
+                .status(errorCode.getStatus().value())
+                .message(ex.getMessage())
+                .code(errorCode.getCode())
+                .build();
+
+        CommonResponse response = CommonResponse.builder()
+                .success(false)
+                .error(error)
+                .build();
+
+        return new ResponseEntity<>(response, errorCode.getStatus());
+    }
+
     /**
      * 회원가입 시, 회원 계정 정보가 중복 되었을때
      */
