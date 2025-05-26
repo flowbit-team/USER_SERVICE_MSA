@@ -22,6 +22,11 @@ public class SubscriberServiceImpl implements SubscriberService {
     private final SubscriberRepository subscriberRepository;
     private final EmailRedisUtil emailRedisUtil;
 
+
+    public long countSubscribers() {
+        return subscriberRepository.count();
+    }
+
     @Override
     @Transactional
     public void subscribe(String email, List<String> keywords) {

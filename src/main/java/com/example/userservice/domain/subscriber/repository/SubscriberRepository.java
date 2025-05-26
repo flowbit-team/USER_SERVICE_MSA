@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface SubscriberRepository extends JpaRepository<Subscriber, Long> {
     Optional<Subscriber> findByEmail(String email);
+    long count();
 }
